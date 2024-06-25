@@ -8,21 +8,17 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-custom-lightBeige overflow-hidden shadow-xl sm:rounded-lg p-6">
-                <div class="mb-4">
-                    <a href="{{ route('reportes.create') }}" class="bg-custom-gold text-white px-4 py-2 rounded">Crear Nuevo Reporte</a>
-                </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full divide-y divide-custom-lightGold">
                         <thead class="bg-custom-lightGold">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">Usuario</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">TIPO DE MASCOTA</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">TIPO DE REPORTE</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">DESCRIPCIÓN DEL REPORTE</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">FOTO</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">DESCRIPCIÓN</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">UBICACIÓN</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">ESTADO</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">PRIORIDAD</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-custom-brown uppercase tracking-wider">ACCIONES</th>
                             </tr>
                         </thead>
@@ -30,16 +26,31 @@
                             @foreach ($reportes as $reporte)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-custom-brown">{{ $reporte->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-custom-brown">{{ $reporte->usuario->name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->tipo_mascota }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->tipo_reporte }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">
+                                    <img src="{{ Storage::url($reporte->foto_mascota) }}" alt="Foto de {{ $reporte->tipo_mascota }}" class="w-20 h-20 object-cover">
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->descripcion }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->ubicacion }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->estado }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">{{ $reporte->prioridad }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-custom-gold">
+                                    <form action="{{ route('reportes.update', $reporte->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <select name="estado" class="px-4 py-2 border focus:ring-custom-brown focus:border-custom-brown w-full sm:text-sm border-custom-beige rounded-md focus:outline-none text-custom-brown">
+                                            <option value="en proceso" {{ $reporte->estado == 'en proceso' ? 'selected' : '' }}>En Proceso</option>
+                                            <option value="cerrado" {{ $reporte->estado == 'cerrado' ? 'selected' : '' }}>Cerrado</option>
+                                        </select>
+                                        
+                                    </form>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div>
-                                        <a href="{{ route('reportes.edit', $reporte->id) }}" class="text-custom-gold">EDITAR</a>
-                                        <button type="button" onclick="confirmDelete('{{ $reporte->id }}')" class="text-custom-gold">ELIMINAR</button>
+                                        <form action="{{ route('reportes.destroy', $reporte->id) }}" method="POST" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" onclick="confirmDelete({{ $reporte->id }})" class="mt-2 bg-custom-gold text-white px-4 py-2 rounded">ELIMINAR</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -53,7 +64,7 @@
 </x-app-layout>
 
 
-{{-- Script para manejar el botón de eliminación con Alertify --}}
+
 <script>
     function confirmDelete(id) {
         alertify.confirm(

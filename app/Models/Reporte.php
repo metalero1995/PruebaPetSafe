@@ -4,24 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reporte extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['tipo_mascota', 'tipo_reporte', 'descripcion', 'ubicacion', 'estado', 'prioridad', 'ubicacion', 'user_id'];
+    protected $fillable = [
+        'user_id', 
+        'tipo_mascota', 
+        'foto_mascota', 
+        'descripcion', 
+        'ubicacion', 
+        'estado'
+    ];
 
-    protected static function boot()
+    public function usuario()
     {
-        parent::boot();
-
-        // Asignar un ID único anónimo al usuario si no está autenticado
-        static::creating(function ($reporte) {
-            if (!Auth::check()) {
-                $reporte->user_id = Str::uuid();
-            }
-        });
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

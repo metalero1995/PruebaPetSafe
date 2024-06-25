@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Reporte;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class ReporteController extends Controller
@@ -14,7 +13,7 @@ class ReporteController extends Controller
      */
     public function index()
     {
-        $reportes = Reporte::all();
+        $reportes = Reporte::with('usuario')->get();
         return view('reportes.index', compact('reportes'));
     }
 
@@ -31,42 +30,36 @@ class ReporteController extends Controller
      */
     public function store(Request $request)
     {
-        // Si el usuario está autenticado, obtenemos su ID
-        if (Auth::check()) {
-            $user_id = Auth::id();
-        } else {
-            // Si el usuario no está autenticado, creamos un ID anónimo único
-            $user_id = Str::uuid();
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
-    
-        // Validar los datos del formulario
+
         $request->validate([
             'tipo_mascota' => 'required|string|max:255',
-            'tipo_reporte' => 'required|string|max:255',
+            'foto_mascota' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'descripcion' => 'required|string',
             'ubicacion' => 'required|string|max:255',
-            'estado' => 'required|string|in:abierto,en_proceso,cerrado',
-            'prioridad' => 'required|string|in:alta,media,baja',
         ]);
-    
-        // Crear el reporte con los datos del formulario y el user_id obtenido
+
+        // Manejo del archivo de imagen
+        if ($request->hasFile('foto_mascota')) {
+            $image = $request->file('foto_mascota');
+            $imagePath = $image->store('mascotas', 'public'); // Guarda la imagen en storage/app/public/mascotas
+        }
+
         $reporte = new Reporte([
+            'user_id' => Auth::id(),
             'tipo_mascota' => $request->tipo_mascota,
-            'tipo_reporte' => $request->tipo_reporte,
+            'foto_mascota' => $imagePath ?? null,
             'descripcion' => $request->descripcion,
-            'estado' => $request->estado,
-            'prioridad' => $request->prioridad,
             'ubicacion' => $request->ubicacion,
-            'user_id' => $user_id,
+            'estado' => 'en proceso',
         ]);
-    
-        // Guardar el reporte
+
         $reporte->save();
-    
-        // Redireccionar a la página de índice de reportes
+
         return redirect()->route('reportes.index');
     }
-    
 
     /**
      * Display the specified resource.
@@ -92,16 +85,29 @@ class ReporteController extends Controller
     {
         $request->validate([
             'tipo_mascota' => 'required|string|max:255',
-            'tipo_reporte' => 'required|string|max:255',
+            'foto_mascota' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'descripcion' => 'required|string',
             'ubicacion' => 'required|string|max:255',
-            'estado' => 'required|string|in:abierto,en_proceso,cerrado',
-            'prioridad' => 'required|string|in:alta,media,baja',
+            'estado' => 'required|string|in:en_proceso,cerrado',
         ]);
 
         $reporte = Reporte::findOrFail($id);
 
-        $reporte->update($request->all());
+        // Manejo del archivo de imagen
+        if ($request->hasFile('foto_mascota')) {
+            $image = $request->file('foto_mascota');
+            $imagePath = $image->store('mascotas', 'public'); // Guarda la imagen en storage/app/public/mascotas
+            $reporte->foto_mascota = $imagePath;
+        }
+
+        $reporte->update([
+            'tipo_mascota' => $request->tipo_mascota,
+            'descripcion' => $request->descripcion,
+            'ubicacion' => $request->ubicacion,
+            'estado' => $request->estado,
+        ]);
+
+        $reporte->save();
 
         return redirect()->route('reportes.index');
     }
@@ -114,6 +120,11 @@ class ReporteController extends Controller
         $reporte = Reporte::findOrFail($id);
         $reporte->delete();
         return redirect()->route('reportes.index');
-
     }
+
+    public function dashboard()
+{
+    $reporte = Reporte::where('user_id', Auth::id())->first(); // O la lógica que necesites para obtener el reporte
+    return view('dashboard', ['reporte' => $reporte]);
+}
 }

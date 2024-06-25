@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ReporteController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicationController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -10,6 +12,14 @@ Route::get('/', function () {
 Route::get('/nosotros', function () {
     return view('about');
 })->name('about');
+
+Route::get('/reporte-vista', function () {
+    return view('reports');
+})->name('reporte.vista');
+
+
+Route::resource('reportes', ReporteController::class);
+Route::resource('publicaciones', PublicationController::class);
 
 Route::middleware([
     'auth:sanctum',
@@ -20,5 +30,4 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 
-    Route::resource('reportes', ReporteController::class);
 });

@@ -25,8 +25,8 @@
                     <a href="{{ route('about') }}" class="py-2 px-6 flex">
                         Nosotros
                     </a>
-                    <a href="#" class="py-2 px-6 flex">
-                        Contactanos
+                    <a href="{{ route('reporte.vista') }}" class="py-2 px-6 flex">
+                        Incidencia por Extravio
                     </a>
                     <a href="{{ route('login') }}" class="py-2 px-6 flex">
                         Iniciar Seccion
@@ -34,6 +34,7 @@
                     <a href="{{ route('register') }}" class="py-2 px-6 flex">
                         Registrarse
                     </a>
+                    
                 </nav>
                 <button class="lg:hidden flex flex-col ml-4">
                     <span class="w-6 h-1 bg-custom-brown mb-1"></span>
@@ -55,12 +56,14 @@
                     Nos complace darte la bienvenida a nuestra plataforma dedicada a mejorar la situacion de los animales abandonados y las mascotas en el municipio de Othón P. Blanco, Quintana Roo, Mexico.
                 </p>
                 <div class="flex mt-8">
-                    <a href="#" class="uppercase py-2 px-4 rounded-lg bg-custom-lightGold border-2 border-transparent text-white text-md mr-4 hover:bg-custom-gold">
-                        Get started
+                    <a href="{{ route('reporte.vista') }}" class="uppercase py-2 px-4 rounded-lg bg-custom-lightGold border-2 border-transparent text-white text-md mr-4 hover:bg-custom-gold">
+                        Contactanos
                     </a>
-                    <a href="#" class="uppercase py-2 px-4 rounded-lg bg-transparent border-2 border-custom-lightGold text-custom-lightGold hover:bg-custom-lightGold hover:text-white text-md">
-                        Read more
+                    <!--
+                    <a href="{{ route('reporte.vista') }}" class="uppercase py-2 px-4 rounded-lg bg-transparent border-2 border-custom-lightGold text-custom-lightGold hover:bg-custom-lightGold hover:text-white text-md">
+                        Reportes Por Extravio
                     </a>
+                    -->
                 </div>
             </div>
             <div class="hidden sm:block sm:w-1/3 lg:w-3/5 relative">
